@@ -10,13 +10,14 @@ import javax.swing.BorderFactory;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
-import javax.swing.JPanel;
+import javax.swing.JLayeredPane;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 
 import com.hexotic.cobble.constants.Constants;
 import com.hexotic.cobble.constants.Theme;
 import com.hexotic.cobble.interfaces.Server;
 import com.hexotic.cobble.interfaces.ServerListener;
+import com.hexotic.cobble.ui.components.LogPanel;
 import com.hexotic.cobble.utils.Log;
 import com.hexotic.lib.util.WinOps;
 
@@ -52,12 +53,14 @@ public class MainWindow extends JFrame{
 		desktop.setBackground(Color.BLACK);
 		
 		desktop.add(createMain());
-		
+				
 		pack();
 		bindSizing();
 		WinOps.centreWindow(this);
 		this.setVisible(true);
 		Log.getInstance().debug(this, "Main Window Intialized and Visible");
+		
+		startServer();
 		
 	}
 	
