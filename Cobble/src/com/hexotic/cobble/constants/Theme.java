@@ -25,8 +25,10 @@ public final class Theme {
 	
 	
 	// Colors Themes
-	public static final Color MAIN_FOREGROUND = new Color(0xFFFFFF);
-	public static final Color MAIN_BACKGROUND = new Color(0x333333);
+	public static final Color MAIN_FOREGROUND = new Color(0x333333);
+	public static final Color MAIN_BACKGROUND = new Color(0xf2f2f2);
+	public static final Color CONSOLE_FOREGROUND = new Color(0xFFFFFF);
+	public static final Color CONSOLE_BACKGROUND = new Color(0x333333);
 	public static final Color MAIN_COLOR_ONE = new Color(0x007D9D);
 	public static final Color MAIN_COLOR_TWO = new Color(0x7DB436);
 	public static final Color MAIN_COLOR_THREE = new Color(0x62882D);

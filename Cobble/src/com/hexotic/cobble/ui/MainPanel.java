@@ -6,7 +6,7 @@ import javax.swing.JPanel;
 
 import com.hexotic.cobble.constants.Theme;
 import com.hexotic.cobble.ui.components.FlipListener;
-import com.hexotic.cobble.ui.components.LogPanel;
+import com.hexotic.cobble.ui.components.ConsolePanel;
 import com.hexotic.cobble.ui.components.ServerControlPanel;
 import com.hexotic.lib.ui.panels.FlipPanel;
 
@@ -15,11 +15,11 @@ public class MainPanel extends JPanel{
 	private FlipPanel flipper;
 	
 	public MainPanel() {
-		this.setBackground(Theme.MAIN_BACKGROUND);
+		this.setBackground(Theme.CONSOLE_BACKGROUND);
 		this.setLayout(new BorderLayout());
 		
 		ServerControlPanel front = new ServerControlPanel();
-		LogPanel back = new LogPanel();
+		ConsolePanel back = new ConsolePanel();
 		
 		
 		FlipListener listener = new FlipListener(){

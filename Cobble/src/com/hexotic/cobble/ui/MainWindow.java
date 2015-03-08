@@ -17,14 +17,13 @@ import com.hexotic.cobble.constants.Constants;
 import com.hexotic.cobble.constants.Theme;
 import com.hexotic.cobble.interfaces.Server;
 import com.hexotic.cobble.interfaces.ServerListener;
-import com.hexotic.cobble.ui.components.LogPanel;
+import com.hexotic.cobble.ui.components.ConsolePanel;
 import com.hexotic.cobble.utils.Log;
 import com.hexotic.lib.util.WinOps;
 
 /**
  * 
- * Class: MainWindow.java 
- * Date: 2/14/2015
+ * Class: MainWindow.java Date: 2/14/2015
  * 
  * Description: Main Window creates sub controls and builds the main window
  * 
@@ -33,79 +32,80 @@ import com.hexotic.lib.util.WinOps;
  *         Copyright Hexotic Software. All Rights Reserved
  * 
  */
-public class MainWindow extends JFrame{
+public class MainWindow extends JFrame {
 
 	private static final long serialVersionUID = 5092527045208783765L;
-	
+
 	private List<JInternalFrame> frames;
 
 	public MainWindow() {
-		Log.getInstance().debug(this, Constants.APPLICATION_NAME + " version: " + Constants.APPLICATION_VERSION + " - " + Constants.APPLICATION_COMPANY);
+		Log.getInstance().debug(this, Constants.APPLICATION_NAME + " " + Constants.APPLICATION_VERSION + " - " + Constants.APPLICATION_COMPANY);
 		frames = new ArrayList<JInternalFrame>();
-		
-		this.setTitle(Constants.APPLICATION_NAME + " version: " + Constants.APPLICATION_VERSION + " - " + Constants.APPLICATION_COMPANY);
+
+		this.setTitle(Constants.APPLICATION_NAME + " " + Constants.APPLICATION_VERSION + " - " + Constants.APPLICATION_COMPANY);
 		this.setPreferredSize(Theme.MAIN_WINDOW_DIMENSION);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+
 		// Setup Desktop Pane/Internal Windows
 		JDesktopPane desktop = new JDesktopPane();
 		this.setContentPane(desktop);
 		desktop.setBackground(Color.BLACK);
-		
+
 		desktop.add(createMain());
-				
+
 		pack();
 		bindSizing();
 		WinOps.centreWindow(this);
 		this.setVisible(true);
 		Log.getInstance().debug(this, "Main Window Intialized and Visible");
-		
+
 		startServer();
-		
+
 	}
-	
-	
+
 	private void bindSizing() {
 		this.addComponentListener(new ComponentListener() {
 			public void componentResized(ComponentEvent e) {
-				
+
 				int targetWidth = e.getComponent().getWidth() - 16;
 				int targetHeight = e.getComponent().getHeight() - 38;
-				for(JInternalFrame frame : frames) {
+				for (JInternalFrame frame : frames) {
 					frame.setSize(targetWidth, targetHeight);
-					frame.setLocation(0,0);
+					frame.setLocation(0, 0);
 				}
 			}
+
 			@Override
 			public void componentHidden(ComponentEvent e) {
 			}
+
 			@Override
 			public void componentMoved(ComponentEvent e) {
 			}
+
 			@Override
 			public void componentShown(ComponentEvent e) {
 			}
 		});
 
 	}
-	
+
 	private void startServer() {
 		Server.getInstance().startup();
-		Server.getInstance().addListener(new ServerListener(){
+		Server.getInstance().addListener(new ServerListener() {
 			@Override
 			public void outputRecieved(String output) {
-				if(output.contains("joined")){
+				if (output.contains("joined")) {
 					Server.getInstance().send("say Welcome! The server is undergoing maintenance and you may get disconnected now and then.  Sorry :(");
-				} 
+				}
 			}
 		});
 	}
-	
-	
-	private void  bindFrameToParent(JInternalFrame frame){
+
+	private void bindFrameToParent(JInternalFrame frame) {
 		frames.add(frame);
 	}
-	
+
 	private JInternalFrame createMain() {
 		JInternalFrame main = new JInternalFrame();
 
@@ -113,16 +113,15 @@ public class MainWindow extends JFrame{
 		main.setBorder(BorderFactory.createEmptyBorder());
 
 		main.add(new MainPanel());
-		
+
 		// Remove the title bar
 		((BasicInternalFrameUI) main.getUI()).setNorthPane(null);
 
-		//Log.getInstance().debug(this, "Main Window Created");
-		
+		// Log.getInstance().debug(this, "Main Window Created");
+
 		main.setVisible(true);
 		bindFrameToParent(main);
 		return main;
 	}
-	
-	
+
 }

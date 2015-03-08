@@ -109,9 +109,11 @@ public class Server {
 	public void send(String command) {
 		Log.getInstance().debug(this, "Sending Command: "+command);
 		try {
-			serverInput.write(command);
-			serverInput.newLine();
-			serverInput.flush();
+			if(proc.isAlive()){
+				serverInput.write(command);
+				serverInput.newLine();
+				serverInput.flush();
+			}
 		} catch (IOException e) {
 			Log.getInstance().error(this, "Failed to send command to minecraft server", e);
 		}
