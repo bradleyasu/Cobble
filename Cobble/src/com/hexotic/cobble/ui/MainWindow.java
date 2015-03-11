@@ -19,6 +19,7 @@ import com.hexotic.cobble.interfaces.Server;
 import com.hexotic.cobble.interfaces.ServerListener;
 import com.hexotic.cobble.ui.components.ConsolePanel;
 import com.hexotic.cobble.utils.Log;
+import com.hexotic.lib.audio.SoundFX;
 import com.hexotic.lib.util.WinOps;
 
 /**
@@ -59,8 +60,7 @@ public class MainWindow extends JFrame {
 		this.setVisible(true);
 		Log.getInstance().debug(this, "Main Window Intialized and Visible");
 
-		startServer();
-
+		//startServer();
 	}
 
 	private void bindSizing() {

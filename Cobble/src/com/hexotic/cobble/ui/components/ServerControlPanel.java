@@ -21,6 +21,7 @@ import com.hexotic.cobble.ui.components.menupanel.MenuItemListener;
 import com.hexotic.cobble.ui.components.menupanel.MenuPanel;
 import com.hexotic.cobble.ui.components.panels.AboutPanel;
 import com.hexotic.cobble.ui.components.panels.server.ServerHomePanel;
+import com.hexotic.cobble.ui.components.players.PlayerPanel;
 
 public class ServerControlPanel extends JPanel{
 	
@@ -40,7 +41,7 @@ public class ServerControlPanel extends JPanel{
 		
 		int itemId = 0;
 		pages.put(new MenuItem(itemId++, "Server"), new ServerHomePanel());
-		pages.put(new MenuItem(itemId++, "Players"), new AboutPanel());
+		pages.put(new MenuItem(itemId++, "Players"), new PlayerPanel());
 		pages.put(new MenuItem(itemId++, "Settings"), new AboutPanel());
 		pages.put(new MenuItem(itemId++, "About"), new AboutPanel());
 		

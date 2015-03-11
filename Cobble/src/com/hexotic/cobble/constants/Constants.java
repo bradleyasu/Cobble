@@ -22,6 +22,8 @@ public final class Constants {
 	public static final String SERVER_PARAMS = "java -Xmx1024M -Xms1024M -jar";
 
 	
+	public static final String SKIN_SERVICE = "http://hexotic.net/Cobble/avatar/skin.php?u=[player]&s=420";
+	
 	
 	private Constants() {
 		/* we do not need to do anything here */

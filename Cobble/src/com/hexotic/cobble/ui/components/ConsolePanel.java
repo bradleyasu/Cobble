@@ -6,7 +6,6 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -17,6 +16,7 @@ import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
@@ -29,6 +29,7 @@ import javax.swing.text.Document;
 import com.hexotic.cobble.constants.Theme;
 import com.hexotic.cobble.interfaces.Server;
 import com.hexotic.cobble.interfaces.ServerListener;
+import com.hexotic.cobble.utils.CobbleCommand;
 import com.hexotic.cobble.utils.Log;
 import com.hexotic.lib.resource.Resources;
 import com.hexotic.lib.ui.panels.SimpleScroller;
@@ -160,21 +161,25 @@ public class ConsolePanel extends JPanel {
 		input.setFont(consoleFont.deriveFont(12F));
 		input.addKeyListener(new KeyListener() {
 			@Override
-			public void keyPressed(KeyEvent arg0) {
+			public void keyPressed(KeyEvent key) {
 			}
 
 			@Override
-			public void keyReleased(KeyEvent arg0) {
-				if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
-					Server.getInstance().send(input.getText());
+			public void keyReleased(KeyEvent key) {
+				if (key.getKeyCode() == KeyEvent.VK_ENTER) {
+					if(input.getText().startsWith("/cobble:")){
+						CobbleCommand.execute(input.getText().replace("/cobble:", ""));
+					} else {
+						Server.getInstance().send(input.getText());
+					}
 					input.setText("");
-				} else if (arg0.getKeyCode() == KeyEvent.VK_ESCAPE){
+				} else if (key.getKeyCode() == KeyEvent.VK_ESCAPE){
 					notifyListeners();
 				}
 			}
 
 			@Override
-			public void keyTyped(KeyEvent arg0) {
+			public void keyTyped(KeyEvent key) {
 			}
 		});
 
@@ -187,7 +192,6 @@ public class ConsolePanel extends JPanel {
 
 	}
 
-	
 	public void appendLine(String line) throws BadLocationException {
 		Document doc = console.getDocument();
 		doc.insertString(doc.getLength(), line + "\n", null);

@@ -129,5 +129,9 @@ public class Server {
 	public void addListener(ServerListener listener) {
 		listeners.add(listener);
 	}
+	
+	public String parseLine(String line){
+		return line.split(":")[3].trim();
+	}
 
 }
