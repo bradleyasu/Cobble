@@ -119,7 +119,6 @@ public class Server {
 		}
 	}
 
-
 	public void notifyListeners(String line) {
 		for (ServerListener listener : listeners) {
 			listener.outputRecieved(line);
@@ -133,5 +132,5 @@ public class Server {
 	public String parseLine(String line){
 		return line.split(":")[3].trim();
 	}
-
+	
 }

@@ -30,9 +30,11 @@ public class PlayerPanel extends JPanel {
 		scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scroller.getVerticalScrollBar().setUI(new SimpleScroller());
 		scroller.getVerticalScrollBar().setPreferredSize(new Dimension(8, 8));
-
+		scroller.getVerticalScrollBar().setUnitIncrement(80);
+		
 		this.add(scroller, BorderLayout.CENTER);
 
+		
 		registerListener();
 	}
 
