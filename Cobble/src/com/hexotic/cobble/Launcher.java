@@ -1,6 +1,7 @@
 package com.hexotic.cobble;
 
 import com.hexotic.cobble.ui.MainWindow;
+import com.hexotic.lib.resource.Resources;
 
 /**
  * Application Entry Point
@@ -24,6 +25,7 @@ public class Launcher {
 	 * Begin with the magic... 
 	 */
 	public static void main(String[] args) {
+		
 		new MainWindow();		
 	}
 

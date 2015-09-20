@@ -7,6 +7,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import com.hexotic.cobble.constants.Constants;
 import com.hexotic.cobble.constants.Theme;
 import com.hexotic.cobble.interfaces.Server;
 import com.hexotic.cobble.interfaces.ServerListener;
@@ -44,6 +45,13 @@ public class PlayerPanel extends JPanel {
 			public void outputRecieved(String output) {
 				if (output.contains("joined")) {
 					String playerName = Server.getInstance().parseLine(output).split(" ")[0];
+					
+					Server.getInstance().send("title "+playerName+" title {\"text\":\"The Journey Continues...\",\"bold\":\"false\",\"color\":\"white\"}");
+					Server.getInstance().send("tellraw "+playerName+" {\"text\":\"Welcome! You've been enchanted with ABSORPTION.  Take advantage of this gift from the GODS!\",\"bold\":\"true\",\"color\":\"aqua\"}");
+					Server.getInstance().send("effect "+playerName+" 22");
+					if(!"MarnBeast".equals(playerName)){
+						Server.getInstance().send("give "+playerName+" minecraft:golden_apple");
+					}
 					playerContainer.addPlayer(playerName);
 				} else if (output.contains("left the game")) {
 					String playerName = Server.getInstance().parseLine(output).split(" ")[0];

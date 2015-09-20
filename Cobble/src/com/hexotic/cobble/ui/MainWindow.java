@@ -10,16 +10,16 @@ import javax.swing.BorderFactory;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
-import javax.swing.JLayeredPane;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 
 import com.hexotic.cobble.constants.Constants;
 import com.hexotic.cobble.constants.Theme;
 import com.hexotic.cobble.interfaces.Server;
 import com.hexotic.cobble.interfaces.ServerListener;
-import com.hexotic.cobble.ui.components.ConsolePanel;
+import com.hexotic.cobble.ui.startPanel.StartPanel;
 import com.hexotic.cobble.utils.Log;
-import com.hexotic.lib.audio.SoundFX;
+import com.hexotic.lib.exceptions.ResourceException;
+import com.hexotic.lib.resource.Resources;
 import com.hexotic.lib.util.WinOps;
 
 /**
@@ -42,16 +42,22 @@ public class MainWindow extends JFrame {
 	public MainWindow() {
 		Log.getInstance().debug(this, Constants.APPLICATION_NAME + " " + Constants.APPLICATION_VERSION + " - " + Constants.APPLICATION_COMPANY);
 		frames = new ArrayList<JInternalFrame>();
-
 		this.setTitle(Constants.APPLICATION_NAME + " " + Constants.APPLICATION_VERSION + " - " + Constants.APPLICATION_COMPANY);
 		this.setPreferredSize(Theme.MAIN_WINDOW_DIMENSION);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		try {
+			this.setIconImage(Resources.getInstance().getImage("logo/logo4.png"));
+		} catch (ResourceException e) {
+			Log.getInstance().error(this, "Couldn't Load Image Resource From Jar for software Icon", e);
+		}
 
 		// Setup Desktop Pane/Internal Windows
 		JDesktopPane desktop = new JDesktopPane();
 		this.setContentPane(desktop);
 		desktop.setBackground(Color.BLACK);
 
+		desktop.add(createStartupMenu());
 		desktop.add(createMain());
 
 		pack();
@@ -106,6 +112,24 @@ public class MainWindow extends JFrame {
 		frames.add(frame);
 	}
 
+	private JInternalFrame createStartupMenu() {
+		JInternalFrame startupPanel = new JInternalFrame();
+
+		startupPanel.setSize(Theme.MAIN_WINDOW_DIMENSION.width, Theme.MAIN_WINDOW_DIMENSION.height);
+		startupPanel.setBorder(BorderFactory.createEmptyBorder());
+
+		startupPanel.add(new StartPanel());
+
+		// Remove the title bar
+		((BasicInternalFrameUI) startupPanel.getUI()).setNorthPane(null);
+
+		// Log.getInstance().debug(this, "Main Window Created");
+
+		startupPanel.setVisible(true);
+		bindFrameToParent(startupPanel);
+		return startupPanel;
+	}
+	
 	private JInternalFrame createMain() {
 		JInternalFrame main = new JInternalFrame();
 
@@ -119,7 +143,7 @@ public class MainWindow extends JFrame {
 
 		// Log.getInstance().debug(this, "Main Window Created");
 
-		main.setVisible(true);
+		main.setVisible(false);
 		bindFrameToParent(main);
 		return main;
 	}

@@ -7,8 +7,6 @@ import java.awt.FontFormatException;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -57,7 +55,7 @@ public class ConsolePanel extends JPanel {
 	
 	// Load the console font that will be used into this variable
 	private Font consoleFont;
-
+	
 	public ConsolePanel() {
 		listeners = new ArrayList<FlipListener>();
 		console = new JEditorPane();
@@ -79,6 +77,7 @@ public class ConsolePanel extends JPanel {
 
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
+				input.requestFocus();
 			}
 
 			@Override
@@ -93,6 +92,7 @@ public class ConsolePanel extends JPanel {
 			public void mouseReleased(MouseEvent arg0) {
 			}
 		});
+
 	}
 
 	public void addFlipListener(FlipListener listener) {
@@ -104,7 +104,7 @@ public class ConsolePanel extends JPanel {
 			listener.toggleFlip();
 		}
 	}
-
+	
 	/**
 	 * Construct the output panel view.  Creates the console and input area
 	 */
@@ -112,23 +112,33 @@ public class ConsolePanel extends JPanel {
 		this.setBackground(Theme.CONSOLE_BACKGROUND);
 		// this.setLayout(new FlowLayout(FlowLayout.CENTER, 40, 40));
 		this.setLayout(new BorderLayout(0, 0));
-
+		
 		console.setBackground(Theme.CONSOLE_BACKGROUND);
 		console.setForeground(Theme.CONSOLE_FOREGROUND);
 		console.setPreferredSize(Theme.CONSOLE_DIMENSION);
 		console.setFont(consoleFont.deriveFont(10F));
 		console.setSelectionColor(Theme.MAIN_COLOR_SIX);
 		console.setEditable(false);
-		console.addFocusListener(new FocusListener() {
+		console.setFocusable(false);
+		console.addMouseListener(new MouseListener(){
 			@Override
-			public void focusGained(FocusEvent arg0) {
+			public void mouseClicked(MouseEvent arg0) {
+			}
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
 				input.requestFocus();
 			}
 			@Override
-			public void focusLost(FocusEvent arg0) {
-				
+			public void mouseExited(MouseEvent arg0) {
+			}
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+			}
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
 			}
 		});
+		
 		
 
 		JScrollPane scroller = new JScrollPane(console);
@@ -151,6 +161,24 @@ public class ConsolePanel extends JPanel {
 		});
 
 		input = new JTextField();
+		input.addMouseListener(new MouseListener(){
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+			}
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				input.requestFocus();
+			}
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+			}
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+			}
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+			}
+		});
 		input.setBackground(Theme.CONSOLE_BACKGROUND);
 		input.setForeground(Theme.CONSOLE_FOREGROUND);
 		input.setPreferredSize(Theme.CONSOLE_INPUT_DIMENSION);
@@ -167,15 +195,21 @@ public class ConsolePanel extends JPanel {
 			@Override
 			public void keyReleased(KeyEvent key) {
 				if (key.getKeyCode() == KeyEvent.VK_ENTER) {
-					if(input.getText().startsWith("/cobble:")){
-						CobbleCommand.execute(input.getText().replace("/cobble:", ""));
+					if(input.getText().startsWith("/")){
+						CobbleCommand.execute(input.getText().replace("/", ""));
 					} else {
 						Server.getInstance().send(input.getText());
 					}
 					input.setText("");
-				} else if (key.getKeyCode() == KeyEvent.VK_ESCAPE){
+				} else if(key.getKeyCode() == KeyEvent.VK_UP){
+					input.setText(Server.getInstance().getCache(Server.CACHE_PREV));
+					
+				} else if(key.getKeyCode() == KeyEvent.VK_DOWN){
+					input.setText(Server.getInstance().getCache(Server.CACHE_NEXT));
+					
+				}else if (key.getKeyCode() == KeyEvent.VK_ESCAPE){
 					notifyListeners();
-				}
+				} 
 			}
 
 			@Override

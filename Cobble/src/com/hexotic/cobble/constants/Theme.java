@@ -20,6 +20,8 @@ public final class Theme {
 	public static final Dimension MAIN_WINDOW_DIMENSION = new Dimension(980,640);
 	public static final Dimension CONSOLE_DIMENSION = new Dimension(850,400);
 	public static final Dimension CONSOLE_INPUT_DIMENSION = new Dimension(750,30);
+	public static final Dimension START_MENU_FIXED_DIMENSION = new Dimension(700, 450);
+	public static final Dimension SERVER_CHOOSER_ITEM_DIMENSION = new Dimension(150, 225);
 	
 	// Fonts
 	

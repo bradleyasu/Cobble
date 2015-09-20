@@ -13,7 +13,13 @@ public class CobbleCommand {
 	public static void execute(String command){
 		if("start".equals(command)){
 			Server.getInstance().startup();
-		} 
+		} else if("exit".equals(command)){
+			try{
+				Server.getInstance().send("stop");
+			}catch (NullPointerException e){/*Server isn't running*/}
+			System.exit(0);
+		}
+		
 		
 		if(command.startsWith("simulate-playerJoin:")){
 			VerboseServer.getInstance().simulatePlayerJoined(command.split(":")[1]);

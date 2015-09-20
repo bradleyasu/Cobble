@@ -14,8 +14,15 @@ import com.hexotic.cobble.utils.Log;
 public class Server {
 
 	private static Server instance = null;
+	
+	public static final int CACHE_PREV = 0;
+	public static final int CACHE_NEXT = 1;
+	public static final int CACHE_SIZE = 10;
+	
 	private File serverJar;
 
+	private List<String> commandCache;
+	private int cacheIndex = 1;
 	private List<ServerListener> listeners;
 
 	/* The process in which the minecraft server is executed in */
@@ -28,7 +35,8 @@ public class Server {
 	
 	private Server() {
 		listeners = new ArrayList<ServerListener>();
-		serverJar = new File("D:\\games\\minecraft_server.1.8.jar");
+		commandCache = new ArrayList<String>();
+		serverJar = new File("D:\\games\\minecraft_server\\minecraft.jar");
 
 	}
 
@@ -114,9 +122,32 @@ public class Server {
 				serverInput.newLine();
 				serverInput.flush();
 			}
+			cache(command);
 		} catch (IOException e) {
 			Log.getInstance().error(this, "Failed to send command to minecraft server", e);
 		}
+	}
+	
+	private void cache(String cache){
+		if(commandCache.size() > CACHE_SIZE){
+			commandCache.remove(0);
+		}
+		commandCache.add(cache);
+		cacheIndex = commandCache.size()+1;
+		
+	}
+	
+	public String getCache(int direction){
+		String cache = "";
+		if(cacheIndex > 1 && commandCache.size() > 0 && direction == CACHE_PREV){
+			cacheIndex--;
+		} else if (cacheIndex <= CACHE_SIZE && cacheIndex < commandCache.size()  && direction == CACHE_NEXT){
+			cacheIndex++;
+		}
+		if(commandCache.size() >= cacheIndex){
+			cache = commandCache.get(cacheIndex-1);
+		}
+		return cache;
 	}
 
 	public void notifyListeners(String line) {

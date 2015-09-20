@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 
 import com.hexotic.cobble.constants.Constants;
 import com.hexotic.cobble.constants.Theme;
+import com.hexotic.lib.exceptions.ResourceException;
 import com.hexotic.lib.resource.Resources;
 
 public class AboutPanel extends JPanel{
@@ -20,7 +21,11 @@ public class AboutPanel extends JPanel{
 	
 	public AboutPanel() {
 		this.setBackground(Theme.MAIN_BACKGROUND);
-		background = Resources.getInstance().getImage("minecraft/sheep_1.png");
+		try {
+			background = Resources.getInstance().getImage("minecraft/sheep_1.png");
+		} catch (ResourceException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	

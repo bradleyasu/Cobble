@@ -6,7 +6,6 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
@@ -16,6 +15,7 @@ import com.hexotic.cobble.constants.Constants;
 import com.hexotic.cobble.constants.Fonts;
 import com.hexotic.cobble.constants.Theme;
 import com.hexotic.cobble.utils.Log;
+import com.hexotic.lib.exceptions.ResourceException;
 import com.hexotic.lib.resource.Resources;
 
 public class Player extends JPanel implements Comparable<Player>{
@@ -28,12 +28,19 @@ public class Player extends JPanel implements Comparable<Player>{
 	private int skinWidth = 105;
 	private int xoffset = 30;
 	private int yoffset = 30;
+	private boolean online = false;
+	
 	
 	public Player(String name){
 		this.name = name;
 		this.setPreferredSize(SIZE);
 		
-		background = Resources.getInstance().getImage("player/background/temp.jpg");
+		try {
+			background = Resources.getInstance().getImage("player/background/temp.jpg");
+		} catch (ResourceException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		try {
 			loadSkin();
 		} catch (IOException e) {
