@@ -2,6 +2,7 @@ package com.hexotic.cobble.ui.startPanel;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -14,8 +15,6 @@ import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -23,8 +22,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import com.hexotic.cobble.constants.Theme;
+import com.hexotic.cobble.settings.ServerStorage;
 import com.hexotic.cobble.ui.components.FlipListener;
-import com.hexotic.cobble.ui.components.menupanel.MenuItem;
 import com.hexotic.cobble.utils.Log;
 import com.hexotic.lib.resource.Resources;
 import com.hexotic.lib.ui.layout.AnimatedGridLayout;
@@ -35,11 +34,13 @@ public class ServerChooser extends JPanel{
 	private List<FlipListener> listeners;
 	private Font font;
 	private JPanel chooser;
+	private List<StartupListener> startupListeners;
 	
 	public ServerChooser() {
 		this.setBackground(Theme.MAIN_BACKGROUND);
 		
 		listeners = new ArrayList<FlipListener>();
+		startupListeners = new ArrayList<StartupListener>();
 		
 		this.setLayout(new BorderLayout());
 		
@@ -60,13 +61,13 @@ public class ServerChooser extends JPanel{
 		scroller.getVerticalScrollBar().setUI(new SimpleScroller());
 		scroller.getVerticalScrollBar().setPreferredSize(new Dimension(5, 5));
 		scroller.getVerticalScrollBar().setUnitIncrement(16);
-		
+		label.setForeground(Theme.MAIN_FOREGROUND);
 		this.add(label, BorderLayout.NORTH);
 		this.add(scroller, BorderLayout.CENTER);
 	}
 	
 	private JPanel createChooserPanel() {
-		AnimatedGridLayout layout = new AnimatedGridLayout(10,10, false);
+		AnimatedGridLayout layout = new AnimatedGridLayout(10,10, true);
 		chooser = new JPanel(layout);
 		chooser.setBackground(Theme.MAIN_BACKGROUND);
 		refreshServerList();
@@ -76,6 +77,10 @@ public class ServerChooser extends JPanel{
 	
 	private void refreshServerList() {
 		chooser.removeAll();
+		int id = 0;
+		for(String serverName : ServerStorage.getInstance().getAllServers().keySet()){
+			chooser.add(new ServerChooserItem(id++, serverName));
+		}
 		chooser.add(new ServerChooserNewItem());
 	}
 	
@@ -89,9 +94,121 @@ public class ServerChooser extends JPanel{
 		}
 	}
 	
+	private void notifyStartup(String server) {
+		for(StartupListener listener : startupListeners){
+			listener.serverSelected(server);
+		}
+	}
 	
-	private class ServerChooserNewItem extends JPanel {
+	public void addStarupListener(StartupListener listener){
+		startupListeners.add(listener);
+	}
+	
+	@Override
+	public void paintComponent(Graphics g){
+		super.paintComponent(g);
+		Graphics2D g2d = (Graphics2D)g;
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		
+		g2d.setColor(Theme.MAIN_BACKGROUND);
+		g2d.fillRect(0, 0, getWidth(), 60);
+		
+		g2d.setColor(Theme.MAIN_COLOR_ONE);
+		g2d.fillRect(0, 5, 5, 50);
+		
+		g2d.setColor(Theme.MAIN_BACKGROUND.darker());
+		g2d.drawLine(0, 59, getWidth(), 59);
+		
+		g2d.setColor(Theme.MAIN_BACKGROUND.brighter());
+		g2d.drawLine(0, 60, getWidth(), 60);
+
+	}
+	
+	private class ServerChooserItem extends JPanel implements ChooserItem, Comparable<ChooserItem> {
+		
+		private String serverName;
+		private String serverExec;
+		private int id;
 		private boolean hovering = false;
+		
+		public ServerChooserItem(int id, String name){
+			this.setPreferredSize(Theme.SERVER_CHOOSER_ITEM_DIMENSION);
+			this.setBackground(Theme.MAIN_FOREGROUND);
+			this.serverName = name;
+			serverExec = ServerStorage.getInstance().getAllServers().get(name);
+			this.id = id;
+			this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			this.addMouseListener(new MouseListener(){
+				@Override
+				public void mouseClicked(MouseEvent arg0) {
+					notifyStartup(serverExec);
+				}
+				@Override
+				public void mouseEntered(MouseEvent arg0) {
+					hovering = true;
+					revalidate();
+					repaint();
+				}
+				@Override
+				public void mouseExited(MouseEvent arg0) {
+					hovering = false;
+					revalidate();
+					repaint();
+				}
+				@Override
+				public void mousePressed(MouseEvent arg0) {
+				}
+				@Override
+				public void mouseReleased(MouseEvent arg0) {
+				}
+			});
+		}
+
+		public int getId(){
+			return id;
+		}
+
+		@Override
+		public int compareTo(ChooserItem item) {
+			return id - item.getId();
+		}
+		
+		@Override
+		public void paintComponent(Graphics g){
+			super.paintComponent(g);
+			Graphics2D g2d = (Graphics2D)g;
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+			// Panel footer background
+			g2d.setColor(Color.WHITE);
+			g2d.fillRect(0, getHeight() - 50, getWidth(), getHeight());
+			
+			if(hovering){
+				g2d.setColor(Theme.MAIN_COLOR_FOUR);
+			} else {
+				g2d.setColor(Theme.MAIN_BACKGROUND.darker());
+			}
+
+			// Draw Card Border
+			g2d.drawRect(0, 0, getWidth()-1, getHeight()-1);
+			
+			g2d.setColor(Theme.MAIN_BACKGROUND.darker());
+
+			
+			// Draw Card Footer
+			g2d.drawLine(0, getHeight()-50, getWidth(), getHeight()-50);
+			
+			g2d.setColor(Theme.MAIN_FOREGROUND);
+			g2d.setFont(font.deriveFont(14F));
+			g2d.drawString(serverName, 5, getHeight()-30);
+		}
+		
+	}
+	
+	private class ServerChooserNewItem extends JPanel implements ChooserItem, Comparable<ChooserItem>{
+		private boolean hovering = false;
+		
+		private int id = 100000;
 		
 		public ServerChooserNewItem() {
 			this.setPreferredSize(Theme.SERVER_CHOOSER_ITEM_DIMENSION);
@@ -123,8 +240,18 @@ public class ServerChooser extends JPanel{
 			});
 		}
 		
+		public int getId(){
+			return id;
+		}
+		
+		@Override
+		public int compareTo(ChooserItem item) {
+			return id - item.getId();
+		}
+		
 		@Override
 		public void paintComponent(Graphics g){
+			super.paintComponent(g);
 			Graphics2D g2d = (Graphics2D)g;
 			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			

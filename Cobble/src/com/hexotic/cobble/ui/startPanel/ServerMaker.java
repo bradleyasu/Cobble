@@ -8,18 +8,22 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import com.hexotic.cobble.constants.Theme;
+import com.hexotic.cobble.interfaces.Server;
+import com.hexotic.cobble.settings.ServerStorage;
 import com.hexotic.cobble.ui.components.FlipListener;
 import com.hexotic.cobble.ui.components.TextFieldWithPrompt;
 import com.hexotic.cobble.ui.components.menupanel.MenuItem;
@@ -29,7 +33,6 @@ import com.hexotic.cobble.utils.Log;
 import com.hexotic.lib.resource.Resources;
 import com.hexotic.lib.switches.BasicSwitch;
 import com.hexotic.lib.ui.buttons.SoftButton;
-import com.hexotic.lib.ui.windows.components.FileExplorer;
 
 public class ServerMaker extends JPanel{
 
@@ -41,11 +44,22 @@ public class ServerMaker extends JPanel{
 	private Map<MenuItem, JPanel> pages;
 	private MenuPanel menu;
 	
+	private List<StartupListener> startupListeners;
+	
+	private TextFieldWithPrompt worldName;
+	private TextFieldWithPrompt port;
+	private TextFieldWithPrompt playerCount;
+	private BasicSwitch hardCoreMode;
+	private TextFieldWithPrompt mtod;
+	private TextFieldWithPrompt serverLocation;
+	
+	
 	public ServerMaker() {
 		this.setBackground(Theme.MAIN_BACKGROUND);
 		this.setLayout(new BorderLayout());
 		this.pages = new TreeMap<MenuItem, JPanel>();
 		listeners = new ArrayList<FlipListener>();
+		startupListeners = new ArrayList<StartupListener>();
 		
 		
 		try {
@@ -121,14 +135,40 @@ public class ServerMaker extends JPanel{
 			}
 		});
 		
+		create.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e){
+				createServer();
+			}
+		});
+		
 		footer.add(cancel);
 		footer.add(create);
 		
 		return footer;
 	}
 	
+	private void createServer() {
+		try {
+			ServerStorage.getInstance().saveServer(worldName.getText(), serverLocation.getText());
+			notifyStartup(serverLocation.getText());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void addFlipListener(FlipListener listener){
 		listeners.add(listener);
+	}
+	
+	public void addStartupListener(StartupListener listener){
+		startupListeners.add(listener);
+	}
+	
+	private void notifyStartup(String server) {
+		for(StartupListener listener : startupListeners){
+			listener.serverSelected(server);
+		}
 	}
 	
 	private void notifyListeners() {
@@ -142,21 +182,94 @@ public class ServerMaker extends JPanel{
 	
 	private class BasicMakerPanel extends JPanel {
 		
-		private TextFieldWithPrompt worldName;
-		private TextFieldWithPrompt port;
-		private TextFieldWithPrompt playerCount;
-		private BasicSwitch hardCoreMode;
-		private TextFieldWithPrompt mtod;
-		private TextFieldWithPrompt serverLocation;
-		
 		public BasicMakerPanel(){
 			this.setBackground(Theme.MAIN_BACKGROUND);
 			this.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 20));
 			worldName = new TextFieldWithPrompt("Cobble_World", "Name of your world");
+			worldName.getDocument().addDocumentListener(new DocumentListener(){
+				@Override
+				public void changedUpdate(DocumentEvent arg0) {
+					check();
+				}
+				@Override
+				public void insertUpdate(DocumentEvent arg0) {
+					check();
+				}
+				@Override
+				public void removeUpdate(DocumentEvent arg0) {
+					check();
+				}
+				
+				public void check() {
+					if(!worldName.getText().isEmpty() && worldName.getText().length() < 50 && !ServerStorage.getInstance().getAllServers().containsKey(worldName.getText())){
+						worldName.setAccepted(true);
+					} else {
+						worldName.setAccepted(false);
+					}
+				}
+			});
+			
 			port = new TextFieldWithPrompt("25565", "Port #");
 			playerCount = new TextFieldWithPrompt("5", "0-256");
 			mtod = new TextFieldWithPrompt("", "Message that is displayed in the server list of the client below the name");
 			serverLocation = new TextFieldWithPrompt("", "Ex: C:\\Servers\\MyWorld\\MinecraftServer.jar");
+
+			mtod.getDocument().addDocumentListener(new DocumentListener(){
+				@Override
+				public void changedUpdate(DocumentEvent arg0) {
+					check();
+				}
+				@Override
+				public void insertUpdate(DocumentEvent arg0) {
+					check();
+				}
+				@Override
+				public void removeUpdate(DocumentEvent arg0) {
+					check();
+				}
+				
+				public void check() {
+					if(!mtod.getText().isEmpty() && mtod.getText().length() < 59){
+						mtod.setAccepted(true);
+					} else {
+						mtod.setAccepted(false);
+					}
+				}
+			});
+			
+			port.getDocument().addDocumentListener(new DocumentListener(){
+				@Override
+				public void changedUpdate(DocumentEvent arg0) {
+					check();
+				}
+				@Override
+				public void insertUpdate(DocumentEvent arg0) {
+					check();
+				}
+				@Override
+				public void removeUpdate(DocumentEvent arg0) {
+					check();
+				}
+				
+				public void check() {
+					if(!port.getText().isEmpty() && Pattern.matches(".*[a-zA-Z].*+", port.getText()) == false && port.getText().length() <= 5){
+						if(Integer.parseInt(port.getText()) > 0 &&  Integer.parseInt(port.getText()) <= 65534) {
+							port.setAccepted(true);
+						} else {
+							port.setAccepted(false);
+						}
+					} else {
+						port.setAccepted(false);
+					}
+				}
+			});
+			
+			
+			// Set defaults to accepted
+			worldName.setAccepted(true);
+			port.setAccepted(true);
+			playerCount.setAccepted(true);
+			mtod.setAccepted(true);
 			
 			worldName.setPreferredSize(new Dimension(350, 35));
 			port.setPreferredSize(new Dimension(150, 35));
@@ -174,7 +287,7 @@ public class ServerMaker extends JPanel{
 			this.add(port);
 			this.add(formLabel("Maximum Number of Players: "));
 			this.add(playerCount);
-			this.add(formLabel("                            Game Mode: "));
+			this.add(formLabel("Game Mode: "));
 			this.add(hardCoreMode);
 			this.add(formLabel("Server Message (MTOD): "));
 			this.add(mtod);

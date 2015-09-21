@@ -3,11 +3,19 @@ package com.hexotic.cobble.interfaces;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.jnbt.CompoundTag;
+import org.jnbt.IntTag;
+import org.jnbt.LongTag;
+import org.jnbt.NBTInputStream;
 
 import com.hexotic.cobble.utils.Log;
 
@@ -33,12 +41,30 @@ public class Server {
 	private BufferedWriter serverInput;
 	private BufferedReader serverOutput;
 	
+	private ServerProperties properties;
+	private LevelDat levelDat;
+	
+
 	private Server() {
 		listeners = new ArrayList<ServerListener>();
 		commandCache = new ArrayList<String>();
-		serverJar = new File("D:\\games\\minecraft_server\\minecraft.jar");
-
+		levelDat = new LevelDat();
 	}
+	
+	public void setServer(String serverPath) {
+		serverJar = new File(serverPath);
+		
+		// Search for the server.properties file in the serverJar path
+		properties = new ServerProperties(serverJar.getParentFile().getPath());
+		
+		// Try to load level dat file
+		
+		String levelName = properties.getProperty("level-name");
+		levelDat.setDatFile(new File(serverJar.getParentFile().getPath()+"\\"+levelName+"\\level.dat"));
+		
+		levelDat.start();
+	}
+
 
 	public void startup() {
 		try {
@@ -105,6 +131,10 @@ public class Server {
 		}
 
 		
+	}
+	
+	public LevelDat getLevelDat() {
+		return levelDat;
 	}
 
 	public static Server getInstance() {

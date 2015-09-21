@@ -17,6 +17,7 @@ import com.hexotic.cobble.constants.Theme;
 import com.hexotic.cobble.interfaces.Server;
 import com.hexotic.cobble.interfaces.ServerListener;
 import com.hexotic.cobble.ui.startPanel.StartPanel;
+import com.hexotic.cobble.ui.startPanel.StartupListener;
 import com.hexotic.cobble.utils.Log;
 import com.hexotic.lib.exceptions.ResourceException;
 import com.hexotic.lib.resource.Resources;
@@ -38,12 +39,16 @@ public class MainWindow extends JFrame {
 	private static final long serialVersionUID = 5092527045208783765L;
 
 	private List<JInternalFrame> frames;
+	
+	private JInternalFrame startupPanelFrame;
+	private JInternalFrame mainPanel;
 
 	public MainWindow() {
 		Log.getInstance().debug(this, Constants.APPLICATION_NAME + " " + Constants.APPLICATION_VERSION + " - " + Constants.APPLICATION_COMPANY);
 		frames = new ArrayList<JInternalFrame>();
 		this.setTitle(Constants.APPLICATION_NAME + " " + Constants.APPLICATION_VERSION + " - " + Constants.APPLICATION_COMPANY);
 		this.setPreferredSize(Theme.MAIN_WINDOW_DIMENSION);
+		this.setMinimumSize(Theme.MAIN_WINDOW_DIMENSION);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		try {
@@ -57,8 +62,10 @@ public class MainWindow extends JFrame {
 		this.setContentPane(desktop);
 		desktop.setBackground(Color.BLACK);
 
-		desktop.add(createStartupMenu());
-		desktop.add(createMain());
+		startupPanelFrame = createStartupMenu();
+		mainPanel = createMain();
+		desktop.add(startupPanelFrame);
+		desktop.add(mainPanel);
 
 		pack();
 		bindSizing();
@@ -118,7 +125,20 @@ public class MainWindow extends JFrame {
 		startupPanel.setSize(Theme.MAIN_WINDOW_DIMENSION.width, Theme.MAIN_WINDOW_DIMENSION.height);
 		startupPanel.setBorder(BorderFactory.createEmptyBorder());
 
-		startupPanel.add(new StartPanel());
+		StartPanel startPanel = new StartPanel();
+		startupPanel.add(startPanel);
+		startPanel.addStarupListener(new StartupListener(){
+			@Override
+			public void serverSelected(String server) {
+				if(server.isEmpty()){
+					startupPanelFrame.setVisible(true);
+					mainPanel.setVisible(false);
+				} else {
+					startupPanelFrame.setVisible(false);
+					mainPanel.setVisible(true);
+				}
+			}
+		});
 
 		// Remove the title bar
 		((BasicInternalFrameUI) startupPanel.getUI()).setNorthPane(null);

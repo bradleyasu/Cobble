@@ -6,11 +6,15 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 import com.hexotic.cobble.constants.Theme;
+import com.hexotic.cobble.interfaces.Server;
+import com.hexotic.cobble.interfaces.ServerListener;
 import com.hexotic.cobble.ui.components.FlipListener;
 import com.hexotic.cobble.utils.Log;
 import com.hexotic.lib.exceptions.ResourceException;
@@ -22,9 +26,11 @@ public class StartPanel extends JPanel{
 
 	private StartPanelMenu homeMenu;
 	private ProgressCircle startProgress;
+	private List<StartupListener> listeners;
 	
 	public StartPanel() {
 		this.setBackground(Theme.MAIN_COLOR_FOUR);
+		this.listeners = new ArrayList<StartupListener>();
 		
 		// Create Layout
 		this.setLayout(new GridBagLayout());
@@ -37,12 +43,39 @@ public class StartPanel extends JPanel{
 		startProgress.cycle();
 		this.add(homeMenu);
 		
+		Server.getInstance().addListener(new ServerListener(){
+			@Override
+			public void outputRecieved(String output) {
+				if(output.contains("Done") && output.contains("For help, type \"help\" or \"?\"")){
+					startProgress.setProgress(100);
+				} else if(output.contains("Server Shutdown")){
+					notifyStartup("");
+				}
+			}
+		});
+		
 		homeMenu.setVisible(true);
 		
 	}
 	
+	public void addStarupListener(StartupListener listener){
+		listeners.add(listener);
+	}
+	
+	public void notifyStartup(String server){
+		for(StartupListener listener : listeners){
+			listener.serverSelected(server);
+		}
+		if(server.isEmpty()){
+			homeMenu.setVisible(true);
+		}
+	}
 
-	public void loadServer() {
+	public void loadServer(final String server) {
+		homeMenu.setVisible(false);
+		Server.getInstance().setServer(server);
+		Server.getInstance().startup();
+		startProgress.setProgress(5);
 		Thread t = new Thread(new Runnable(){
 			@Override
 			public void run() {
@@ -52,6 +85,7 @@ public class StartPanel extends JPanel{
 					} catch (InterruptedException e) { }
 					refresh();
 				}
+				notifyStartup(server);
 			}
 		});
 		t.start();
@@ -102,10 +136,24 @@ public class StartPanel extends JPanel{
 				}
 			};
 
+			StartupListener startupListener = new StartupListener() {
+				@Override
+				public void serverSelected(String server) {
+					loadServer(server);
+					if(flipper.isFlipped()){
+						flipper.flip();
+					}
+				}
+			};
+					
+			
 			this.setFocusable(true);
 			
 			front.addFlipListener(listener);
 			back.addFlipListener(listener);
+			
+			front.addStarupListener(startupListener);
+			back.addStartupListener(startupListener);
 			
 			this.add(flipper, BorderLayout.CENTER);
 			
