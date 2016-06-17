@@ -12,11 +12,12 @@ import org.jnbt.CompoundTag;
 import org.jnbt.IntTag;
 import org.jnbt.LongTag;
 import org.jnbt.NBTInputStream;
+import org.jnbt.StringTag;
 
 public class LevelDat {
 
 	public static final String[] GAME_TYPES = { "Survival", "Creative", "Adventure", "Spectator" };
-	public static final String UNKNOWN = "uknown";
+	public static final String UNKNOWN = "UNKNOWN";
 
 	private File datFile;
 	
@@ -25,6 +26,7 @@ public class LevelDat {
 	private long currentTime = 0;
 	private String seed = LevelDat.UNKNOWN;
 	private int gameType = -1;
+	private String levelName = LevelDat.UNKNOWN;
 	
 	private List<LevelDatListener> listeners;
 
@@ -71,9 +73,8 @@ public class LevelDat {
 
 		currentTime = time.getValue() % 24000;
 		seed = (((LongTag) data.getValue().get("RandomSeed")).getValue()).toString();
-		
 		gameType = ((IntTag) data.getValue().get("GameType")).getValue();
-		
+		levelName = ((StringTag) data.getValue().get("LevelName")).getValue();
 		ns.close();
 	}
 	
@@ -89,8 +90,12 @@ public class LevelDat {
 		return decodeGameTypeType(gameType);
 	}
 
+	public String getLevelName() {
+		return levelName;
+	}
+	
 	private String timeConvert(long time) {
-		String sTime = "unknown";
+		String sTime = UNKNOWN;
 		if(time >= 18000){
 			time = time / 1000 - 18;
 		} else {

@@ -103,18 +103,6 @@ public class MainWindow extends JFrame {
 
 	}
 
-	private void startServer() {
-		Server.getInstance().startup();
-		Server.getInstance().addListener(new ServerListener() {
-			@Override
-			public void outputRecieved(String output) {
-				if (output.contains("joined")) {
-					Server.getInstance().send("say Welcome! The server is undergoing maintenance and you may get disconnected now and then.  Sorry :(");
-				}
-			}
-		});
-	}
-
 	private void bindFrameToParent(JInternalFrame frame) {
 		frames.add(frame);
 	}

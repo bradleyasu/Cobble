@@ -1,7 +1,6 @@
 package com.hexotic.cobble;
 
 import com.hexotic.cobble.ui.MainWindow;
-import com.hexotic.lib.resource.Resources;
 
 /**
  * Application Entry Point
